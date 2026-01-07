@@ -3,12 +3,14 @@ import { emotions } from "../../data/emotions";
 
 export default function EmotionWheel() {
   const [selectedId, setSelectedId] = useState(null);
+  const [selectedSecondary, setSelectedSecondary] = useState(null);
 
-  const size = 600;
+
+  const size = 750;
   const center = size / 2;
 
   const innerRadius = 150;
-  const outerRadius = 250;
+  const outerRadius = 300;
 
   const sliceAngle = (2 * Math.PI) / emotions.length;
 
@@ -59,26 +61,23 @@ export default function EmotionWheel() {
                 fill={emotion.color}
                 style={{
                   cursor: "pointer",
-                  transition: "filter 0.2s ease",
-                  filter:
-                    selectedId === emotion.id
-                      ? "brightness(1.15)"
-                      : "brightness(1)",
+                  transition: "opacity 0.2s ease",
+                  opacity: selectedId === emotion.id ? 1 : 0.95,
+
                 }}
-                onClick={() =>
+                onClick={() => {
+                  setSelectedSecondary(null);
                   setSelectedId(
                     selectedId === emotion.id ? null : emotion.id
-                  )
-                }
-                onMouseEnter={(e) =>
-                  (e.target.style.filter = "brightness(1.25)")
-                }
+                  );
+                }}
+                
+                onMouseEnter={(e) => (e.target.style.opacity = 1)}
                 onMouseLeave={(e) =>
-                  (e.target.style.filter =
-                    selectedId === emotion.id
-                      ? "brightness(1.15)"
-                      : "brightness(1)")
+                  (e.target.style.opacity =
+                    selectedId === emotion.id ? 1 : 0.95)
                 }
+
               />
 
               {/* INNER LABEL */}
@@ -104,55 +103,109 @@ export default function EmotionWheel() {
                 const subStart = start + j * subAngle;
                 const subEnd = subStart + subAngle;
 
+                const midAngle = (subStart + subEnd) / 2;
+                const rotation = (midAngle * 180) / Math.PI + 90;
+                const readableRotation = (rotation > 0 && rotation < 180 ? rotation + 180 : rotation) + 90;
+
                 const outerLabelPos = getLabelPosition(
                   subStart,
                   subEnd,
-                  (innerRadius + outerRadius) / 2
+                  innerRadius + (outerRadius - innerRadius) * 0.6
                 );
 
                 return (
                   <g key={sec.id}>
                     <path
                       d={arcPath(subStart, subEnd, innerRadius, outerRadius)}
-                      fill={emotion.color + "99"} // pastel
+                      fill={emotion.color + "D9"}
                       style={{
-                        transition: "filter 0.2s ease",
+                        cursor: "pointer",
+                        transition: "opacity 0.2s ease",
+                        opacity: 0.9,
                       }}
-                      onMouseEnter={(e) =>
-                        (e.target.style.filter = "brightness(1.1)")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.target.style.filter = "brightness(1)")
-                      }
+                      onClick={() => {
+                        setSelectedId(null);
+                        setSelectedSecondary(
+                          selectedSecondary?.id === sec.id
+                            ? null
+                            : { ...sec, parent: emotion }
+                        );
+                      }}
+                                           
+                      onMouseEnter={(e) => (e.target.style.opacity = 1)}
+                      onMouseLeave={(e) => (e.target.style.opacity = 0.9)}
                     />
+
+
 
                     <text
                       x={outerLabelPos.x}
                       y={outerLabelPos.y}
                       textAnchor="middle"
                       dominantBaseline="middle"
+                      transform={`rotate(${readableRotation} ${outerLabelPos.x} ${outerLabelPos.y})`}
                       style={{
                         fill: "white",
-                        fontSize: "11px",
+                        fontSize: "14px",
                         pointerEvents: "none",
                         userSelect: "none",
-                        opacity: 0.9,
-                        textShadow: "0 1px 2px rgba(0,0,0,0.35)",
+                        stroke: "rgba(0,0,0,0.35)",
+                        strokeWidth: "0.6px",
+                        paintOrder: "stroke",
                       }}
                     >
-                      {sec.label}
+                      {sec.label.toUpperCase()}
                     </text>
                   </g>
                 );
               })}
-            </g>
+          </g>
           );
         })}
       </svg>
 
       {/* DESCRIPTION PANEL – AYNI KALIYOR */}
-      <div style={{ maxWidth: "300px" }}>
-        {selectedEmotion ? (
+      <div style={{ maxWidth: "320px" }}>
+        {/* SECONDARY SEÇİLİYSE */}
+        {selectedSecondary ? (
+          <>
+            <p style={{ fontSize: "0.95rem", opacity: 0.9, marginBottom: "0.25rem" }}>
+              Part of{" "}
+              <strong style={{ color: selectedSecondary.parent.color }}>
+                {selectedSecondary.parent.label}
+              </strong>{" "}
+              → {selectedSecondary.label}
+            </p>
+
+            <h3 style={{ marginTop: 0 }}>{selectedSecondary.label}</h3>
+
+              <p>{selectedSecondary.description}</p>
+
+              {selectedSecondary.tertiary.length > 0 && (
+                <>
+                  <h4 style={{ marginTop: "1rem" }}>Often felt as:</h4>
+                  <ul style={{ paddingLeft: "1.2rem" }}>
+                    {selectedSecondary.tertiary.map((t) => (
+                      <li key={t}>{t}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+
+            <p
+              style={{
+                fontSize: "0.8rem",
+                opacity: 0.5,
+                marginTop: "1rem",
+                cursor: "pointer",
+              }}
+              onClick={() => setSelectedSecondary(null)}
+            >
+              Click to close
+            </p>
+          </>
+        ) : selectedEmotion ? (
+          /* CORE SEÇİLİYSE */
           <>
             <h3 style={{ marginTop: 0 }}>{selectedEmotion.label}</h3>
             <p>{selectedEmotion.description}</p>
@@ -162,10 +215,11 @@ export default function EmotionWheel() {
           </>
         ) : (
           <p style={{ opacity: 0.6 }}>
-            Click on a core emotion to read its description.
+            Click on a core or secondary emotion to explore.
           </p>
         )}
       </div>
+
     </div>
   );
 }
