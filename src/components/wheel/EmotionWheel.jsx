@@ -207,7 +207,9 @@ export default function EmotionWheel() {
         ) : selectedEmotion ? (
           /* CORE SEÇİLİYSE */
           <>
-            <h3 style={{ marginTop: 0 }}>{selectedEmotion.label}</h3>
+            <h3 style={{ marginTop: "3rem" }}>
+            {selectedEmotion.label}
+            </h3>
             <p>{selectedEmotion.description}</p>
             <p style={{ fontSize: "0.85rem", opacity: 0.6 }}>
               Click the same emotion again to close.
