@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { coreQuestions } from "../../data/questions/coreQuestions";
-import { calculateScores, getTopEmotions } from "../../utils/scoring";
+import { calculateScores, getTopEmotions } from "../../util/scoring";
 import QuestionSlider from "./QuestionSlider";
 
 export default function ReflectPage() {
