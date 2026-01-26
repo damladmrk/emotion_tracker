@@ -6,8 +6,8 @@ export default function QuestionSlider({ question, value, onChange }) {
   
         <input
           type="range"
-          min="1"
-          max="4"
+          min="0"
+          max="3"
           step="1"
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
