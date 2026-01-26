@@ -1,4 +1,4 @@
-# Emotion Tracker 🌈
+# Emotion Tracker 
 
 An interactive emotion wheel designed to help users reflect on their daily emotional state.
 
